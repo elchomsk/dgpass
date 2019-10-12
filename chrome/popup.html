@@ -1,0 +1,51 @@
+<html>
+<head>
+    <title>dgpass</title>
+    <link rel="stylesheet" href="bootstrap-4.3.1-dist/css/bootstrap.min.css">
+    <script type="text/javascript" src="popup.js"></script>
+    <style>
+        body {
+            min-width: 400px;
+        }
+    </style>    
+</head>
+<body>
+    <!-- <form class="form-container">
+        <label for="website"><b>Website</b></label>
+        <input type="text" placeholder="www.example.com" name="website" id="website">    
+
+        <label for="username"><b>Username</b></label>
+        <input type="text" placeholder="jdoe" name="username" id="username">
+    
+        <label for="password"><b>Password</b></label>
+        <input type="password" name="password" readonly>
+    </form> -->
+    <div class="card">
+        <div class="card-body">        
+            <form id="dgpass">
+                <div class="form-group">
+                    <label for="dgpass_site">Site</label>
+                    <input type="text" class="form-control" id="dgpass_site">
+                </div>
+                <div class="form-group">                    
+                    <label for="dgpass_salt">Salt</label>
+                    <input type="text" class="form-control" id="dgpass_salt">
+                </div>
+                <div class="form-group">                    
+                    <label for="dgpass_username">User name</label>
+                    <input type="text" class="form-control" id="dgpass_username">
+                </div>
+                <div class="form-group">                    
+                    <label for="dgpass_password">Password</label>
+                    <input type="password" class="form-control" id="dgpass_password">
+                </div>
+                <div class="form-group">                    
+                    <label for="dgpass_hash">Hashed password</label>
+                    <input type="text" class="form-control" id="dgpass_hash" readonly>
+                </div>
+            </form>
+            <button type="button" class="btn btn-danger" id="dgpass_generate">Generate</button>
+        </div>
+    </div>
+</body>
+</html>

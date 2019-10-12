@@ -1,0 +1,50 @@
+<html>
+<head>
+    <title>dgpass options</title>
+    <link rel="stylesheet" href="bootstrap-4.3.1-dist/css/bootstrap.min.css">
+    <script src="options.js"></script>    
+    <style>
+        body {
+            min-width: 700px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="card-body">        
+            <form id="dgpass_options">
+                <div class="form-group">
+                    <label for="dgpass_salt">Master salt</label>
+                    <input type="text" class="form-control" id="dgpass_salt" aria-describedby="dgpass_salt_help" placeholder="Text...">
+                    <small id="dgpass_salt_help" class="form-text text-muted">Use a reasonably long text as your salt.</small>
+                </div>
+                <div class="form-group">
+                    <div><label for="dgpass_iterations">PBKDF2 iterations</label></div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="dgpass_iterations" id="dgpass_iterations_16" value="16">
+                        <label class="form-check-label" for="dgpass_iterations_16">2<sup>16</sup></label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="dgpass_iterations" id="dgpass_iterations_18" value="18">
+                        <label class="form-check-label" for="dgpass_iterations_18">2<sup>18</sup></label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="dgpass_iterations" id="dgpass_iterations_20" value="20">
+                        <label class="form-check-label" for="dgpass_iterations_20">2<sup>20</sup></label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="dgpass_iterations" id="dgpass_iterations_22" value="22">
+                        <label class="form-check-label" for="dgpass_iterations_22">2<sup>22</sup></label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="dgpass_iterations" id="dgpass_iterations_24" value="24">
+                        <label class="form-check-label" for="dgpass_iterations_24">2<sup>24</sup></label>
+                    </div>            
+                    <small id="dgpass_iterations_help" class="form-text text-muted">Higher values make the algorithm slower but also harder to brute-force.</small>
+                </div>
+                <button type="submit" class="btn btn-primary" id="dgpass_save">Save</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

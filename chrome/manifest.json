@@ -1,0 +1,35 @@
+{
+    "name": "dgpass",
+    "version": "0.1.0",
+    "description": "Generate site passwords using PBKDF2. The key icon is part of Font Awesome (https://fontawesome.com/).",
+    "manifest_version": 2,
+    "icons": {
+        "16": "images/key16.png",
+        "24": "images/key24.png",
+        "32": "images/key32.png",
+        "48": "images/key48.png",
+        "64": "images/key64.png"
+    },
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": true
+    },  
+    "browser_action": {
+        "default_icon": {
+            "16": "images/key16.png",
+            "24": "images/key24.png",
+            "32": "images/key32.png",
+            "48": "images/key48.png",
+            "64": "images/key64.png"
+        },
+        "default_popup": "popup.html"
+    },
+    "options_ui": {
+        "page": "options.html",
+        "open_in_tab": false
+    },
+    "permissions": [
+        "activeTab",
+        "storage"
+    ]
+  }
