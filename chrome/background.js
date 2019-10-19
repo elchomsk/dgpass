@@ -188,6 +188,10 @@ document.addEventListener('DOMContentLoaded', function() {
             case 'options':
                 get_options();
                 break;
+
+            case 'show_options':
+                chrome.runtime.openOptionsPage();
+                break;
         }
     });
 

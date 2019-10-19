@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let instance = Date.now();
 
+
     chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
 
         switch(msg.msg) {
@@ -36,6 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+
     document.getElementById('dgpass_generate').addEventListener('click', function() {
         let site = document.getElementById('dgpass_site');
         let salt = document.getElementById('dgpass_salt');
@@ -56,6 +58,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         chrome.runtime.sendMessage(msg);
     });
+
+    document.getElementById('dgpass_options').onclick = function() {
+        chrome.runtime.sendMessage({msg: 'show_options'});
+    }
 
     chrome.runtime.sendMessage({msg: 'loaded'});
 }, false);
