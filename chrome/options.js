@@ -16,10 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (typeof iterations === 'undefined') {
                 iterations = ITERATIONS_DEFAULT;
             }
-
-            console.log('dgpass_iterations_' + iterations);
             
-            document.getElementById('dgpass_salt').value = result.salt;
+            document.getElementById('dgpass_salt').value = salt;
             document.getElementById('dgpass_iterations_' + iterations).checked = true;
         });
     }
