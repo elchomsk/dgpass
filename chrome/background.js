@@ -31,18 +31,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     ////////////////////////////////////////////////////////////////////
-    function encode_uld(num)
+    function encode_uld(ushort)
     {
-        let digit = DIGITS[num % 10];
-        num = Math.floor(num / 10);
+        let digit = DIGITS[ushort % 10];
+        ushort = Math.floor(ushort / 10);
 
-        let lower = LOWERCASE[num % 26];
-        num = Math.floor(num / 26);
+        let lower = LOWERCASE[ushort % 26];
+        ushort = Math.floor(ushort / 26);
 
-        let upper = UPPERCASE[num % 26];
-        num = Math.floor(num / 26);
+        let upper = UPPERCASE[ushort % 26];
+        ushort = Math.floor(ushort / 26);
 
-        let p = PERMS[num % 6];
+        let p = PERMS[ushort % 6];
 
         let result = ['', '', ''];
         result[p[0]] = upper;
@@ -54,35 +54,41 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     ////////////////////////////////////////////////////////////////////
-    function encode(raw, nchars)
+    function encode_ushort(ushort)
     {
-        if (raw.length < (nchars-1)) {
-            throw("raw array is too short");
+        if (ushort >= 65534) {
+            return ''
         }
 
-        let prefix = (new Uint16Array(raw))[0];
-        let suffix = Array.from(new Uint8Array(raw)).slice(2, nchars-1);
+        return ENCODING[ushort % 62]
+    }
 
-        return encode_uld(prefix) + suffix.map(b => ENCODING[b % ENCODING.length]).join('');
+
+    ////////////////////////////////////////////////////////////////////
+    function encode(raw, nchars)
+    {
+        let nums = Array.from(new Uint16Array(raw));
+        let prefix = nums[0];
+        let suffix = nums.slice(1);
+
+        let result = encode_uld(prefix) + suffix.map(encode_ushort).join('');
+
+        if (result.length < nchars) {
+            return null;
+        }
+
+        return result.slice(0, nchars);
     }
     
 
     ////////////////////////////////////////////////////////////////////
-    async function generate_hashed(site, salt, username, password)
+    async function hash(site, salt, username, password, attempt)
     {
-        if ((site === null) || (salt === null) || (username === null) || (password === null)) {
-            return null;
-        }
-
         let enc = new TextEncoder();
-
-        console.log('key: ', password + '|' + master_salt + '|' + salt);
-        console.log('salt: ', site + '|' + username)
-        console.log('itrations: 2**' + iterations);
 
         let pbkdf2_key = await window.crypto.subtle.importKey(
             'raw',
-            enc.encode(password + '|' + master_salt + '|' + salt),
+            enc.encode(password + '|' + master_salt + '|' + salt + '|' + attempt),
             {name: 'PBKDF2'},
             false,
             ['deriveKey']
@@ -91,15 +97,15 @@ document.addEventListener('DOMContentLoaded', function() {
         let pbkdf2 = await window.crypto.subtle.deriveKey(
             {
               name: 'PBKDF2',
-              hash: 'SHA-256',
+              hash: 'SHA-512',
               salt: enc.encode(site + '|' + username),
               iterations: 2**iterations,
             },
             pbkdf2_key,
             { 
                 name: 'HMAC',
-                hash: 'SHA-256',
-                length: 128
+                hash: 'SHA-512',
+                length: 512
             },
             true,
             [ 'sign', 'verify' ]
@@ -108,6 +114,24 @@ document.addEventListener('DOMContentLoaded', function() {
         let key = await window.crypto.subtle.exportKey('raw', pbkdf2);
 
         return(encode(key, 16));
+    }
+
+
+    ////////////////////////////////////////////////////////////////////
+    async function generate_hashed(site, salt, username, password)
+    {
+        if ((site === null) || (salt === null) || (username === null) || (password === null)) {
+            return null;
+        }
+
+        for (let attempt=0; attempt<2; ++attempt) {
+            let pass = await hash(site, salt, username, password, 0)            
+            if (pass !== null) {
+                return pass;
+            }    
+        }
+
+        return null;
     }
 
 
@@ -158,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             case 'generate':
                 let prom = generate_hashed(msg.site, msg.salt, msg.username, msg.password);
-                prom.then(function(hashed) {console.log('instance'+msg.instance); chrome.runtime.sendMessage({msg: 'hashed', instance: msg.instance, hashed: hashed})});
+                prom.then(function(hashed) {chrome.runtime.sendMessage({msg: 'hashed', instance: msg.instance, hashed: hashed})});
                 break;
 
             case 'options':
