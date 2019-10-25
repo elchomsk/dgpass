@@ -59,6 +59,25 @@ document.addEventListener('DOMContentLoaded', function() {
         chrome.runtime.sendMessage(msg);
     });
 
+
+    document.getElementById('dgpass_autofill').addEventListener('click', function() {
+        let site = document.getElementById('dgpass_site');
+        let salt = document.getElementById('dgpass_salt');
+        let username = document.getElementById('dgpass_username');
+        let password = document.getElementById('dgpass_password');
+        if ((site === null) || (salt === null) || (username === null) || (password === null)) {
+            return;
+        }
+        let msg = {msg: 'autofill',
+                   site: site.value,
+                   salt: salt.value,
+                   username: username.value,
+                   password: password.value}
+        chrome.runtime.sendMessage(msg);
+        window.close();
+    });
+
+
     document.getElementById('dgpass_options').onclick = function() {
         chrome.runtime.sendMessage({msg: 'show_options'});
     }

@@ -9,8 +9,29 @@ document.addEventListener('DOMContentLoaded', function() {
     const DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
     const ENCODING = UPPERCASE.concat(LOWERCASE).concat(DIGITS);
 
+    var autofill_code = null;
+
     var master_salt = null;
-    var iterations;
+    var iterations = null;
+
+
+    ////////////////////////////////////////////////////////////////////
+    function get_autofill_code()
+    {
+        const url = chrome.runtime.getURL('autofill.js');
+        fetch(url)
+        .then(function(response) {
+            if (response.status >= 200 && response.status < 300) {
+                return Promise.resolve(response);
+            }
+        })
+        .then(function(response) {
+            return response.text();
+        })
+        .then(function(code) {
+            autofill_code = code;
+        });
+    }
 
 
     ////////////////////////////////////////////////////////////////////
@@ -136,6 +157,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     ////////////////////////////////////////////////////////////////////
+    function copy_to_clipboard(text)
+    {
+        let copy_from = document.createElement("textarea");
+        copy_from.textContent = text;
+        document.body.appendChild(copy_from);
+        copy_from.select();
+        document.execCommand('copy');
+        copy_from.blur();
+        document.body.removeChild(copy_from);
+    }
+
+
+    ////////////////////////////////////////////////////////////////////
     function resolve_tab(handler, msg)
     {
         chrome.tabs.query({active: true,  'lastFocusedWindow': true}, function(tabs) {
@@ -169,6 +203,25 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 
+    function generate(msg)
+    {
+        let prom = generate_hashed(msg.site, msg.salt, msg.username, msg.password);
+        prom.then(function(hashed) {
+            copy_to_clipboard(hashed); 
+            chrome.runtime.sendMessage({msg: 'hashed', instance: msg.instance, hashed: "[copied to clipboard]"});
+        });
+    }
+
+
+    function autofill(tab, msg)
+    {
+        let prom = generate_hashed(msg.site, msg.salt, msg.username, msg.password);
+        prom.then(function(hashed) {
+            chrome.tabs.executeScript(tab.id, {code: autofill_code.replace('passwd_placeholder', hashed)});
+        });
+    }
+
+
     chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
         switch(msg.msg) {
 
@@ -181,9 +234,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
 
             case 'generate':
-                let prom = generate_hashed(msg.site, msg.salt, msg.username, msg.password);
-                prom.then(function(hashed) {chrome.runtime.sendMessage({msg: 'hashed', instance: msg.instance, hashed: hashed})});
+                generate(msg);
                 break;
+
+            case 'autofill':
+                resolve_tab(autofill, msg);
+                break;    
 
             case 'options':
                 get_options();
@@ -196,5 +252,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 
+    get_autofill_code();
     get_options();    
 });
